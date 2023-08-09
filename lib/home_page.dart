@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:voice_assistance/pallete.dart';
+import 'package:voice_assistance/services/open_ai_service.dart';
 import 'package:voice_assistance/widgets/featurebox_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,6 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _speechToText = SpeechToText();
   String _lastWords = '';
+  final OpenAIService openAIService = OpenAIService();
   @override
   void initState() {
     super.initState();
@@ -126,21 +128,25 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             // Suggestion list
-            const Column(
+            Column(
               children: [
-                FeatureBoxWidget(
+                Visibility(
+                  visible: _lastWords.isNotEmpty,
+                  child: Text(_lastWords),
+                ),
+                const FeatureBoxWidget(
                   color: Pallete.firstSuggestionBoxColor,
                   headerText: 'ChatGPT',
                   bodyText:
                       'A Smarter way to say organized and informed with ChatGPT',
                 ),
-                FeatureBoxWidget(
+                const FeatureBoxWidget(
                   color: Pallete.secondSuggestionBoxColor,
                   headerText: 'Dall-E',
                   bodyText:
                       'Get inspired and stay creative with your personal assistant powered by Dall-E',
                 ),
-                FeatureBoxWidget(
+                const FeatureBoxWidget(
                   color: Pallete.secondSuggestionBoxColor,
                   headerText: 'Smart Voice Assistant',
                   bodyText:
@@ -158,6 +164,7 @@ class _HomePageState extends State<HomePage> {
               _speechToText.isNotListening) {
             _startListening();
           } else if (_speechToText.isListening) {
+            await openAIService.isArtPromptAPI(_lastWords);
             _stopListening();
           } else {
             // check for the permission
